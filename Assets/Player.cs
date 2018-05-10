@@ -26,7 +26,6 @@ public class Player : MonoBehaviour {
 	public static bool jumping = false;
 	private bool moving = false;
 	private bool lookingLeft = false;
-	bool once = true;
 
 	// Use this for initialization
 	void Start () 
@@ -37,12 +36,11 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		if (death == true && once)
+		if (death == true)
 		{
 			imDead = true;
 			speed = 0;
 			StartCoroutine(Restart());
-			once = false;
 		}
 
 		#region Movement
@@ -176,6 +174,7 @@ public class Player : MonoBehaviour {
 			mainCollider.enabled = false;
 		}
 		yield return new WaitForSeconds (5);
+		death = false;
 		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 

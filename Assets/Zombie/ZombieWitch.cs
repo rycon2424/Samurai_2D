@@ -20,6 +20,8 @@ public class ZombieWitch : MonoBehaviour {
 	public bool triggered = false;
 	bool attackCld = true;
 
+	bool dead = false;
+
 	void Start () 
 	{
 		myVector = gameObject.transform.position;
@@ -27,35 +29,36 @@ public class ZombieWitch : MonoBehaviour {
 
 	void Update () 
 	{
-
-		if (player.transform.position.x > myVector.x)
-		{
-			transform.rotation = Quaternion.Euler (0, 90, 0);
-		}
-
-		if (player.transform.position.x < myVector.x)
-		{
-			transform.rotation = Quaternion.Euler (0, -90, 0);
-		}
-
-		if (triggered) 
-		{
-			aim.transform.LookAt (player.transform.position);
-			aim.transform.Rotate (new Vector3 (0, -90, -90), Space.Self);
-			if (attackCld)
+		if (!dead) {
+			if (player.transform.position.x > myVector.x)
 			{
-				int random;
-				random = Random.Range (1, 11);
-				if (random > 2 && random == 2)
+				transform.rotation = Quaternion.Euler (0, 90, 0);
+			}
+
+			if (player.transform.position.x < myVector.x)
+			{
+				transform.rotation = Quaternion.Euler (0, -90, 0);
+			}
+
+			if (triggered) 
+			{
+				aim.transform.LookAt (player.transform.position);
+				aim.transform.Rotate (new Vector3 (0, -90, -90), Space.Self);
+				if (attackCld)
 				{
-					Instantiate (bullet, aim.transform.position, aim.transform.rotation);
+					int random;
+					random = Random.Range (1, 11);
+					if (random > 2 || random == 2)
+					{
+						Instantiate (bullet, aim.transform.position, aim.transform.rotation);
+					}
+					if (random < 2)
+					{
+						Instantiate (lightingRain, gameObject.transform.position, lightingRain.transform.rotation);
+					}
+					attackCld = false;
+					StartCoroutine(Cooldown());
 				}
-				if (random < 2)
-				{
-					Instantiate (lightingRain, gameObject.transform.position, lightingRain.transform.rotation);
-				}
-				attackCld = false;
-				StartCoroutine(Cooldown());
 			}
 		}
 	}
@@ -79,6 +82,7 @@ public class ZombieWitch : MonoBehaviour {
 
 		if (col.gameObject.tag == "Sword" && triggered)
 		{
+			dead = true;
 			anim.SetInteger ("State", 3);
 			zombieCollider.enabled = false;
 			deathCollider.enabled = false;
