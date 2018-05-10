@@ -8,6 +8,7 @@ public class ZombieWitch : MonoBehaviour {
 	public Transform aim;
 	public Transform bullet;
 	public Transform lightingRain;
+	public GameObject RedMark;
 
 	public Collider triggerCollider;
 	public Collider deathCollider;
@@ -24,6 +25,7 @@ public class ZombieWitch : MonoBehaviour {
 
 	void Start () 
 	{
+		RedMark.SetActive (false);
 		myVector = gameObject.transform.position;
 	}
 
@@ -54,13 +56,21 @@ public class ZombieWitch : MonoBehaviour {
 					}
 					if (random < 2)
 					{
-						Instantiate (lightingRain, gameObject.transform.position, lightingRain.transform.rotation);
+						StartCoroutine(LightingAttack());
 					}
 					attackCld = false;
 					StartCoroutine(Cooldown());
 				}
 			}
 		}
+	}
+
+	IEnumerator LightingAttack()
+	{
+		RedMark.SetActive (true);
+		yield return new WaitForSeconds (1f);
+		RedMark.SetActive (false);
+		Instantiate (lightingRain, gameObject.transform.position, lightingRain.transform.rotation);
 	}
 
 	IEnumerator Cooldown()
@@ -77,7 +87,6 @@ public class ZombieWitch : MonoBehaviour {
 			anim.SetInteger ("State", 1);
 			triggerCollider.enabled = false;
 			triggered = true;
-
 		}
 
 		if (col.gameObject.tag == "Sword" && triggered)
