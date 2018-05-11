@@ -32,7 +32,7 @@ public class Zombie : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col)
 	{
-		if (col.gameObject.tag == "ground")
+		if (col.gameObject.tag == "ground" || col.gameObject.tag == "Turn")
 		{
 			transform.Rotate (0, 180, 0);
 		}
@@ -51,10 +51,6 @@ public class Zombie : MonoBehaviour {
 			speed = 0;
 		}
 
-		/*if (col.gameObject.CompareTag ("Zombie"))
-		{
-			Physics.IgnoreCollision(col.GetComponent<Collider>(), collider);
-		}*/
 	}
 
 	void OnTriggerExit (Collider col)

@@ -96,7 +96,7 @@ public class Player : MonoBehaviour {
 			{
 				anim.Play("Run");
 			}
-			else 
+			else
 			{
 				anim.Play("Walk");
 			}
@@ -150,7 +150,7 @@ public class Player : MonoBehaviour {
 
 	IEnumerator Jump()
 	{
-		yield return new WaitForSeconds (0.6f);
+		yield return new WaitForSeconds (0.2f);
 		jumping = true;
 	}
 

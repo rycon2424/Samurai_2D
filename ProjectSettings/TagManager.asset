@@ -9,6 +9,7 @@ TagManager:
   - Death
   - Zombie
   - Boss
+  - Turn
   layers:
   - Default
   - TransparentFX

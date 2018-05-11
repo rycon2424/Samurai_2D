@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23646156093729550}
   m_Layer: 0
   m_Name: TurnEnemy
-  m_TagString: ground
+  m_TagString: Turn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
