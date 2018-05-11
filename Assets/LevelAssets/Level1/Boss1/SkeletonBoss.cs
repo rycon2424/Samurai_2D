@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class SkeletonBoss : MonoBehaviour {
 
+	public bool alive = true;
+
 	[Header("Start Boss")]
 	public bool bossFightStarted = false;
 	public enum bossFightState {first, second};
@@ -62,8 +64,19 @@ public class SkeletonBoss : MonoBehaviour {
 	void Update () 
 	{
 		hpBar.value = hpBoss;
+		if (hpBoss < 1)
+		{
+			secondSword.SetActive (false);
+			particle1.SetActive (false);
+			explosion.SetActive (false);
+			hpBarVisual.SetActive (false);
+			sword.SetActive (false);
+			pillar.SetActive (false);
+			alive = false;
+			anim.SetInteger ("State", 9);
+		}
 		
-		if (bossFightStarted && (whatPhase == bossFightState.first || whatPhase == bossFightState.second)) 
+		if (bossFightStarted && (whatPhase == bossFightState.first || whatPhase == bossFightState.second) && alive) 
 		{
 			myVector = gameObject.transform.position;
 			thePlayerV3 = player.transform.position;
@@ -120,7 +133,7 @@ public class SkeletonBoss : MonoBehaviour {
 			}
 		}
 
-		if (hpBoss < 16) 
+		if (hpBoss < 16 && alive) 
 		{
 			if (doOnce) 
 			{
@@ -149,7 +162,7 @@ public class SkeletonBoss : MonoBehaviour {
 			}
 		}
 
-		if (bossFightStarted)
+		if (bossFightStarted && alive)
 		{
 			if (col.gameObject.CompareTag("Sword") && !hurt && !transformAnimation && whatPhase == bossFightState.first)
 			{
@@ -168,7 +181,7 @@ public class SkeletonBoss : MonoBehaviour {
 
 	IEnumerator HurtSecondPhase ()
 	{
-		hpBoss = hpBoss - 3;
+		hpBoss = hpBoss - 2;
 		yield return new WaitForSeconds (1.7f);
 		canBeHitSecondPhase = true;
 	}
@@ -176,7 +189,7 @@ public class SkeletonBoss : MonoBehaviour {
 	IEnumerator Hurt ()
 	{
 		sword.SetActive (false);
-		hpBoss = hpBoss - 8;
+		hpBoss = hpBoss - 1;
 		anim.SetInteger ("State", 4);
 		yield return new WaitForSeconds (1.7f);
 		stunned = false;

@@ -2043,6 +2043,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6d3c467e5520b94dacb22f99728ff2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  alive: 1
   bossFightStarted: 0
   whatPhase: 0
   fightTrigger: {fileID: 65317909826879616}
