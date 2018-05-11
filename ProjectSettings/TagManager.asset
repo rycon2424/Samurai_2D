@@ -8,6 +8,7 @@ TagManager:
   - Sword
   - Death
   - Zombie
+  - Boss
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - 
   - 
   - Zombie
-  - 
-  - 
+  - Boss
+  - Death
   - 
   - 
   - 
