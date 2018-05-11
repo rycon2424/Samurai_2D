@@ -47,11 +47,13 @@ public class SkeletonBoss : MonoBehaviour {
 	bool transformAnimation = false;
 	bool doOnce = true;
 	public bool running = false;
+	public GameObject exMark;
 
 
 	void Start () 
 	{
 		secondSword.SetActive (false);
+		exMark.SetActive (false);
 		particle1.SetActive (false);
 		explosion.SetActive (false);
 		hpBarVisual.SetActive (false);
@@ -189,7 +191,7 @@ public class SkeletonBoss : MonoBehaviour {
 	IEnumerator Hurt ()
 	{
 		sword.SetActive (false);
-		hpBoss = hpBoss - 1;
+		hpBoss = hpBoss - 2;
 		anim.SetInteger ("State", 4);
 		yield return new WaitForSeconds (1.7f);
 		stunned = false;
@@ -225,20 +227,30 @@ public class SkeletonBoss : MonoBehaviour {
 		attackCooldown = true;
 		sword.SetActive (true);
 		yield return new WaitForSeconds (1f);
+		int chance;
+		chance = Random.Range (1, 8);
+		if (chance == 1)
+		{
+			exMark.SetActive (true);
+		}
+		if (chance == 5)
+		{
+			exMark.SetActive (true);
+		}
 		anim.SetInteger ("State", 6);
 		yield return new WaitForSeconds (1.5f);
 		anim.SetInteger ("State", 7);
 		sword.SetActive (false);
 		attacking = false;
-		int chance;
-		chance = Random.Range (1, 8);
 		if (chance == 1)
 		{
 			Instantiate (fireBall, fireBallSpawn1.position, fireBallSpawn1.rotation);
+			exMark.SetActive (false);
 		}
 		if (chance == 5)
 		{
 			Instantiate (fireBall, fireBallSpawn2.position, fireBallSpawn2.rotation);
+			exMark.SetActive (false);
 		}
 		yield return new WaitForSeconds (4f);
 		attackCooldown = false;
