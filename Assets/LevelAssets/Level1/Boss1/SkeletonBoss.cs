@@ -23,19 +23,35 @@ public class SkeletonBoss : MonoBehaviour {
 	public Transform player;
 	public Vector3 thePlayerV3;
 	public Vector3 myVector;
-	public float speed;
+	public float speed = 1;
 
-	////////////Phase 1////////////
+	[Header("Phase 1")]
+	public Transform fireBall;
+	public Transform fireBallSpawn1;
+	public Transform fireBallSpawn2;
+	public float attackRange = 2.5f;
 	bool hurt = false;
 	bool stunned = false;
 	bool attacking = false;
 	bool cast = false;
 	bool canCastRanged = false;
 
-	//[Header("Phase 2")]
+	[Header("Phase 2")]
+	public GameObject secondSword;
+	public GameObject particle1;
+	public GameObject explosion;
+	bool attackCooldown = false;
+	bool canBeHitSecondPhase = true;
+	bool transformAnimation = false;
+	bool doOnce = true;
+	public bool running = false;
+
 
 	void Start () 
 	{
+		secondSword.SetActive (false);
+		particle1.SetActive (false);
+		explosion.SetActive (false);
 		hpBarVisual.SetActive (false);
 		sword.SetActive (false);
 		pillar.SetActive (false);
@@ -46,13 +62,13 @@ public class SkeletonBoss : MonoBehaviour {
 	void Update () 
 	{
 		hpBar.value = hpBoss;
-
-		if (bossFightStarted && whatPhase == bossFightState.first) 
+		
+		if (bossFightStarted && (whatPhase == bossFightState.first || whatPhase == bossFightState.second)) 
 		{
 			myVector = gameObject.transform.position;
 			thePlayerV3 = player.transform.position;
 
-			if (!attacking && !stunned)
+			if (!attacking && !stunned && !transformAnimation && !running)
 			{
 				anim.SetInteger ("State", 2);
 				transform.Translate (Vector3.forward * speed * Time.deltaTime);
@@ -68,26 +84,55 @@ public class SkeletonBoss : MonoBehaviour {
 				transform.rotation = Quaternion.Euler (0, -90, 0);
 			}
 
-			///////////Debug.Log(transform.position.x - thePlayerV3.x);
-
-			if (Vector3.Distance(thePlayerV3, transform.position) < 2.5f && !stunned) 
+			if (Vector3.Distance(thePlayerV3, transform.position) < attackRange && !stunned && !transformAnimation && !attackCooldown) 
 			{
 				canCastRanged = true;
 				attacking = true;
 				anim.SetInteger ("State", 3);
 				sword.SetActive (true);
+				if (whatPhase == bossFightState.second)
+				{
+					StartCoroutine(SecondSwing());
+				}
 			} else 
 			{
-				sword.SetActive (false);
-				attacking = false;
+				if (whatPhase == bossFightState.first) {
+					sword.SetActive (false);
+					attacking = false;
+				}
 			}
 
-			if (Vector3.Distance(thePlayerV3, transform.position) > 5f && !stunned && canCastRanged) 
+			if (Vector3.Distance(thePlayerV3, transform.position) > 7.5f && !stunned && canCastRanged && !transformAnimation) 
 			{
 				canCastRanged = false;
 				StartCoroutine(RangedAttack());
 			} 
+
+			if (Vector3.Distance(thePlayerV3, transform.position) > 6f && !stunned && !transformAnimation && whatPhase == bossFightState.second) 
+			{
+				running = true;
+				transform.Translate (Vector3.forward * speed * Time.deltaTime);
+				anim.SetInteger ("State", 8);
+				speed = 4;
+			} else {
+				running = false;
+				speed = 1;
+			}
 		}
+
+		if (hpBoss < 16) 
+		{
+			if (doOnce) 
+			{
+				transformAnimation = true;
+				StartCoroutine(PhaseTwo());
+				doOnce = false;
+			}
+			secondSword.SetActive (true);
+			particle1.SetActive (true);
+			explosion.SetActive (true);
+		}
+
 	}
 
 	void OnTriggerEnter(Collider col)
@@ -106,20 +151,32 @@ public class SkeletonBoss : MonoBehaviour {
 
 		if (bossFightStarted)
 		{
-			if (col.gameObject.CompareTag("Sword") && !hurt)
+			if (col.gameObject.CompareTag("Sword") && !hurt && !transformAnimation && whatPhase == bossFightState.first)
 			{
-				Debug.Log ("hit");
 				hurt = true;
 				stunned = true;
 				StartCoroutine(Hurt());
 			}
+
+			if (col.gameObject.CompareTag("Sword") && !hurt && !transformAnimation && whatPhase == bossFightState.second && canBeHitSecondPhase)
+			{
+				canBeHitSecondPhase = false;
+				StartCoroutine(HurtSecondPhase());
+			}
 		}
+	}
+
+	IEnumerator HurtSecondPhase ()
+	{
+		hpBoss = hpBoss - 3;
+		yield return new WaitForSeconds (1.7f);
+		canBeHitSecondPhase = true;
 	}
 
 	IEnumerator Hurt ()
 	{
 		sword.SetActive (false);
-		hpBoss = hpBoss - 1;
+		hpBoss = hpBoss - 8;
 		anim.SetInteger ("State", 4);
 		yield return new WaitForSeconds (1.7f);
 		stunned = false;
@@ -129,8 +186,48 @@ public class SkeletonBoss : MonoBehaviour {
 
 	IEnumerator RangedAttack ()
 	{
-		yield return new WaitForSeconds (2f);
-		Debug.Log ("boom");
+		int chance;
+		chance = Random.Range (1, 3);
+		if (chance == 1)
+		{
+			Instantiate (fireBall, fireBallSpawn1.position, fireBallSpawn1.rotation);
+		} else {
+			Instantiate (fireBall, fireBallSpawn2.position, fireBallSpawn2.rotation);
+		}
+		yield return new WaitForSeconds (3f);
 		canCastRanged = true;
+	}
+
+	IEnumerator PhaseTwo()
+	{
+		anim.SetInteger ("State", 5);
+		yield return new WaitForSeconds (2.5f);
+		whatPhase = bossFightState.second;
+		transformAnimation = false;
+	}
+
+	IEnumerator SecondSwing()
+	{
+		attacking = true;
+		attackCooldown = true;
+		sword.SetActive (true);
+		yield return new WaitForSeconds (1f);
+		anim.SetInteger ("State", 6);
+		yield return new WaitForSeconds (1.5f);
+		anim.SetInteger ("State", 7);
+		sword.SetActive (false);
+		attacking = false;
+		int chance;
+		chance = Random.Range (1, 8);
+		if (chance == 1)
+		{
+			Instantiate (fireBall, fireBallSpawn1.position, fireBallSpawn1.rotation);
+		}
+		if (chance == 5)
+		{
+			Instantiate (fireBall, fireBallSpawn2.position, fireBallSpawn2.rotation);
+		}
+		yield return new WaitForSeconds (4f);
+		attackCooldown = false;
 	}
 }
