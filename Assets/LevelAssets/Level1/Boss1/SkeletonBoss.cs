@@ -193,7 +193,7 @@ public class SkeletonBoss : MonoBehaviour {
 		anim.SetInteger ("State", 4);
 		yield return new WaitForSeconds (1.7f);
 		stunned = false;
-		yield return new WaitForSeconds (2.3f);
+		yield return new WaitForSeconds (1f);
 		hurt = false;
 	}
 
