@@ -15,6 +15,9 @@ public class SkeletonBoss : MonoBehaviour {
 	public GameObject pillar;
 	public Animator anim;
 	public GameObject sword;
+	public GameObject soul;
+	public Transform portal;
+	bool once = true;
 
 	[Header("HEALTH INFO/DISPLAY")]
 	public Slider hpBar;
@@ -76,6 +79,12 @@ public class SkeletonBoss : MonoBehaviour {
 			pillar.SetActive (false);
 			alive = false;
 			anim.SetInteger ("State", 9);
+			if (once)
+			{
+				Instantiate (soul, transform.position, transform.rotation);
+				Instantiate (portal, transform.position, transform.rotation);
+				once = false;
+			}
 		}
 		
 		if (bossFightStarted && (whatPhase == bossFightState.first || whatPhase == bossFightState.second) && alive) 
@@ -183,7 +192,7 @@ public class SkeletonBoss : MonoBehaviour {
 
 	IEnumerator HurtSecondPhase ()
 	{
-		hpBoss = hpBoss - 2;
+		hpBoss = hpBoss - 3;
 		yield return new WaitForSeconds (1.7f);
 		canBeHitSecondPhase = true;
 	}
