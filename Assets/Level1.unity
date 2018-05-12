@@ -5132,16 +5132,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 114399853143413738, guid: 1ee51c59271ad6e4f95b10c5defb26b0,
-        type: 2}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 436466505}
     - target: {fileID: 223660002543646524, guid: 1ee51c59271ad6e4f95b10c5defb26b0,
         type: 2}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1555166267}
+    - target: {fileID: 114399853143413738, guid: 1ee51c59271ad6e4f95b10c5defb26b0,
+        type: 2}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 436466505}
     - target: {fileID: 224431249467998360, guid: 1ee51c59271ad6e4f95b10c5defb26b0,
         type: 2}
       propertyPath: m_AnchorMax.x
