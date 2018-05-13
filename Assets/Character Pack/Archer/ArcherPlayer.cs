@@ -33,6 +33,7 @@ public class ArcherPlayer : MonoBehaviour {
 	public bool arrowDraw;
 	public Transform arrowShot;
 	public Transform bow;
+	public GameObject drawParticles;
 	public float nextArrowSpeed;
 	bool arrowCooldown = false;
 	bool sprinting = false;
@@ -43,6 +44,7 @@ public class ArcherPlayer : MonoBehaviour {
 		mainCollider = this.transform.gameObject.GetComponent<CapsuleCollider>();
 		swordBack.SetActive (false);
 		bowHand.SetActive (false);
+		drawParticles.SetActive(false);
 	}
 
 	void Update ()
@@ -50,7 +52,7 @@ public class ArcherPlayer : MonoBehaviour {
 
 		nextArrowSpeed = Arrow.arrowForce;
 
-		if (death == true)
+		if (death)
 		{
 			imDead = true;
 			speed = 0;
@@ -107,8 +109,16 @@ public class ArcherPlayer : MonoBehaviour {
 
 		if (Input.GetKey(KeyCode.W) && !jumping)
 		{
-			selfRigidbody.AddForce (0, forceConst, 0, ForceMode.Impulse);
-			StartCoroutine(Jump());
+			if (!usingSword && !arrowDraw)
+			{
+				selfRigidbody.AddForce (0, forceConst, 0, ForceMode.Impulse);
+				StartCoroutine(Jump());
+			}
+			if (usingSword)
+			{
+				selfRigidbody.AddForce (0, forceConst, 0, ForceMode.Impulse);
+				StartCoroutine(Jump());
+			}
 		}
 
 		#endregion
@@ -237,11 +247,13 @@ public class ArcherPlayer : MonoBehaviour {
 			if (arrowDraw == true && (Input.GetMouseButtonUp(0)))
 			{
 				Instantiate(arrowShot, bow.transform.position, arrowShot.transform.rotation);
+				drawParticles.SetActive(false);
 				StartCoroutine(ArrowCooldown());
 			}
 
 			if (Input.GetMouseButton(0) && !arrowCooldown && !sprinting)
 			{
+				drawParticles.SetActive(true);
 				Arrow.arrowForce = Arrow.arrowForce + 0.08f;
 				if (!moving)
 				{
