@@ -38,7 +38,6 @@ public class SkeletonBoss : MonoBehaviour {
 	bool hurt = false;
 	bool stunned = false;
 	bool attacking = false;
-	bool cast = false;
 	bool canCastRanged = false;
 
 	[Header("Phase 2")]

@@ -14,7 +14,6 @@ public class ArcherPlayer : MonoBehaviour {
 	public Animator anim;
 	public bool usingSword = true;
 	bool onlyOnce = true;
-	bool isRolling = false;
 
 	public Transform canvasOfDeath;
 
@@ -22,7 +21,7 @@ public class ArcherPlayer : MonoBehaviour {
 	public Rigidbody selfRigidbody;
 
 	public static bool jumping = false;
-	private bool lookingLeft = false;
+	public static bool lookingLeft = false;
 
 	public bool imDead = false;
 
@@ -32,6 +31,11 @@ public class ArcherPlayer : MonoBehaviour {
 	public GameObject swordBack;
 	bool swapCooldown;
 	public bool arrowDraw;
+	public Transform arrowShot;
+	public Transform bow;
+	public float nextArrowSpeed;
+	bool arrowCooldown = false;
+	bool sprinting = false;
 
 	void Start () 
 	{
@@ -43,6 +47,9 @@ public class ArcherPlayer : MonoBehaviour {
 
 	void Update ()
 	{
+
+		nextArrowSpeed = Arrow.arrowForce;
+
 		if (death == true)
 		{
 			imDead = true;
@@ -54,7 +61,21 @@ public class ArcherPlayer : MonoBehaviour {
 
 		if (Input.GetKey(KeyCode.LeftShift) && !imDead)
 		{
-			speed = 4;
+			if (!usingSword)
+			{
+				if (arrowDraw == true) 
+				{
+					speed = 1;
+				}
+				else
+				{
+					speed = 4;
+				}
+			}
+			if (usingSword)
+			{
+				speed = 4;
+			}
 		}
 
 		if (Input.GetKeyUp(KeyCode.LeftShift) && !imDead)
@@ -150,6 +171,11 @@ public class ArcherPlayer : MonoBehaviour {
 					anim.SetInteger ("State", 1);
 				}
 			}
+			else
+			{
+				moving = false;
+				anim.SetInteger ("State", 0);
+			}
 
 			if (Input.GetMouseButton(0))
 			{
@@ -161,12 +187,11 @@ public class ArcherPlayer : MonoBehaviour {
 				sword.enabled = false;
 			}
 
-			if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A)
+			if (Input.GetKeyUp(KeyCode.D) && Input.GetKeyUp(KeyCode.A)
 				|| Input.GetKeyUp(KeyCode.W) || (Input.GetKeyUp(KeyCode.LeftShift)
 					|| (Input.GetKeyUp(KeyCode.Space)) || (Input.GetMouseButtonUp(0)) 
 					|| (Input.GetKeyUp(KeyCode.E))))
 			{
-				moving = false;
 				anim.SetInteger ("State", 0);
 
 			}
@@ -178,11 +203,22 @@ public class ArcherPlayer : MonoBehaviour {
 
 		if (!usingSword)
 		{
+
+			if (arrowDraw == true)
+			{
+				speed = 1;
+			}
+			else
+			{
+				speed = 2;
+			}
+
 			if (Input.GetKey(KeyCode.D) || (Input.GetKey(KeyCode.A)))
 			{
 				moving = true;
-				if (Input.GetKey(KeyCode.LeftShift))
+				if (Input.GetKey(KeyCode.LeftShift) && arrowDraw == false)
 				{	
+					sprinting = true;
 					anim.SetInteger ("State", 2);
 					anim.SetBool ("Drawn", false);
 				}
@@ -195,10 +231,18 @@ public class ArcherPlayer : MonoBehaviour {
 			{
 				anim.SetInteger ("State", 0);
 				moving = false;
+				sprinting = false;
 			}
 
-			if (Input.GetMouseButton(0))
+			if (arrowDraw == true && (Input.GetMouseButtonUp(0)))
 			{
+				Instantiate(arrowShot, bow.transform.position, arrowShot.transform.rotation);
+				StartCoroutine(ArrowCooldown());
+			}
+
+			if (Input.GetMouseButton(0) && !arrowCooldown && !sprinting)
+			{
+				Arrow.arrowForce = Arrow.arrowForce + 0.08f;
 				if (!moving)
 				{
 					anim.SetInteger ("State", 3);
@@ -257,6 +301,13 @@ public class ArcherPlayer : MonoBehaviour {
 	{
 		yield return new WaitForSeconds (0.2f);
 		jumping = true;
+	}
+
+	IEnumerator ArrowCooldown()
+	{
+		arrowCooldown = true;
+		yield return new WaitForSeconds (0.8f);
+		arrowCooldown = false;
 	}
 
 	IEnumerator Restart()
