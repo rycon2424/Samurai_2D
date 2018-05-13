@@ -11292,6 +11292,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 52
       objectReference: {fileID: 0}
+    - target: {fileID: 65694133601424206, guid: ad2943720e5812e449d239b904a44285,
+        type: 2}
+      propertyPath: m_Size.z
+      value: 3.2760923
+      objectReference: {fileID: 0}
+    - target: {fileID: 65694133601424206, guid: ad2943720e5812e449d239b904a44285,
+        type: 2}
+      propertyPath: m_Center.z
+      value: 1.5380454
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ad2943720e5812e449d239b904a44285, type: 2}
   m_IsPrefabParent: 0
@@ -14427,7 +14437,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1398168505}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 149.827, y: -10.88, z: 1.55}
+  m_LocalPosition: {x: 152.76, y: -10.88, z: 1.55}
   m_LocalScale: {x: 4.3682084, y: 4, z: 1}
   m_Children: []
   m_Father: {fileID: 899849582}
