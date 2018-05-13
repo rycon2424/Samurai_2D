@@ -12,15 +12,9 @@ public class ArcherPlayer : MonoBehaviour {
 	public Transform playerCamera;
 	public CapsuleCollider mainCollider;
 	public Animator anim;
+	public bool usingSword = true;
 	bool onlyOnce = true;
 	bool isRolling = false;
-
-	float normalHitboxX = 98;
-	float normalHitboxY = 238;
-	float normalHitboxZ = 90;
-	float rollingHitboxX = 0;
-	float rollingHitboxY = 0;
-	float rollingHitboxZ = 0;
 
 	public Transform canvasOfDeath;
 
@@ -32,10 +26,19 @@ public class ArcherPlayer : MonoBehaviour {
 
 	public bool imDead = false;
 
+	public Collider sword;
+	public GameObject swordHand;
+	public GameObject bowHand;
+	public GameObject swordBack;
+	bool swapCooldown;
+	public bool arrowDraw;
+
 	void Start () 
 	{
 		anim = GetComponent<Animator> ();
 		mainCollider = this.transform.gameObject.GetComponent<CapsuleCollider>();
+		swordBack.SetActive (false);
+		bowHand.SetActive (false);
 	}
 
 	void Update ()
@@ -87,61 +90,157 @@ public class ArcherPlayer : MonoBehaviour {
 			StartCoroutine(Jump());
 		}
 
-		if (Input.GetKeyDown(KeyCode.Space) && !isRolling)
+		#endregion
+
+		#region swap
+
+		if (Input.GetKeyDown(KeyCode.E) && !swapCooldown)
 		{
-			isRolling = true;
-			mainCollider.height = 20;
-			anim.SetInteger ("State", 3);
-			StartCoroutine(Rol());
-			if (lookingLeft)
+			anim.SetInteger ("State", 5);
+			usingSword = !usingSword;
+			if (swordBack.activeSelf)
 			{
-				selfRigidbody.AddForce (-4, 2, 0, ForceMode.Impulse);
-			}
-			if (!lookingLeft)
+				swordBack.SetActive(false);
+			}else
 			{
-				selfRigidbody.AddForce (4, 2, 0, ForceMode.Impulse);
+				swordBack.SetActive(true);
 			}
+		}
+
+		if (swordBack.activeSelf && !usingSword)
+		{
+			swordHand.SetActive (false);
+			bowHand.SetActive (true);
+		}
+		if (!swordBack.activeSelf && usingSword)
+		{
+			swordHand.SetActive (true);
+			bowHand.SetActive (false);
 		}
 
 		#endregion
 
-		#region animation
+		#region Sword
 
-		if (Input.GetMouseButton(0))
+		if (swordBack.activeSelf)
 		{
-			anim.SetInteger ("State", 4);
+			anim.SetBool ("Sword", false);
+		}else
+		{
+			anim.SetBool ("Sword", true);
 		}
 
-		if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A)
-			|| Input.GetKeyUp(KeyCode.W) || (Input.GetKeyUp(KeyCode.LeftShift)
-				|| (Input.GetKeyUp(KeyCode.Space)) || (Input.GetMouseButtonUp(0))))
-		{
-			moving = false;
-			anim.SetInteger ("State", 0);
-		}
-
-		if (Input.GetKey(KeyCode.D) || (Input.GetKey(KeyCode.A)))
-		{
-			moving = true;
-			if (Input.GetKey(KeyCode.LeftShift))
-			{	
-				if (Input.GetMouseButton(0))
-				{
-					anim.SetInteger ("State", 4);
+		if (usingSword) {
+			if (Input.GetKey(KeyCode.D) || (Input.GetKey(KeyCode.A)))
+			{
+				moving = true;
+				if (Input.GetKey(KeyCode.LeftShift))
+				{	
+					if (Input.GetMouseButton(0))
+					{
+						anim.SetInteger ("State", 4);
+					}
+					else
+					{
+						anim.SetInteger ("State", 2);
+					}
 				}
 				else
 				{
-				anim.SetInteger ("State", 2);
+					anim.SetInteger ("State", 1);
 				}
 			}
-			else
+
+			if (Input.GetMouseButton(0))
 			{
-				anim.SetInteger ("State", 1);
+				anim.SetInteger ("State", 4);
+				sword.enabled = true;
+			}
+			else 
+			{
+				sword.enabled = false;
+			}
+
+			if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A)
+				|| Input.GetKeyUp(KeyCode.W) || (Input.GetKeyUp(KeyCode.LeftShift)
+					|| (Input.GetKeyUp(KeyCode.Space)) || (Input.GetMouseButtonUp(0)) 
+					|| (Input.GetKeyUp(KeyCode.E))))
+			{
+				moving = false;
+				anim.SetInteger ("State", 0);
+
 			}
 		}
 
 		#endregion
+
+		#region bow
+
+		if (!usingSword)
+		{
+			if (Input.GetKey(KeyCode.D) || (Input.GetKey(KeyCode.A)))
+			{
+				moving = true;
+				if (Input.GetKey(KeyCode.LeftShift))
+				{	
+					anim.SetInteger ("State", 2);
+					anim.SetBool ("Drawn", false);
+				}
+				else 
+				{
+					anim.SetInteger ("State", 1);
+				}
+			}
+			else 
+			{
+				anim.SetInteger ("State", 0);
+				moving = false;
+			}
+
+			if (Input.GetMouseButton(0))
+			{
+				if (!moving)
+				{
+					anim.SetInteger ("State", 3);
+				}
+				else 
+				{
+					anim.SetInteger ("State", 6);
+				}
+				arrowDraw = true;
+				anim.SetBool ("Drawn", true);
+			}
+			else 
+			{
+				arrowDraw = false;
+				anim.SetBool ("Drawn", false);
+			}
+
+			if (Input.GetKeyUp(KeyCode.D) && Input.GetKeyUp(KeyCode.A)
+				|| Input.GetKeyUp(KeyCode.W) || (Input.GetKeyUp(KeyCode.LeftShift)
+					|| (Input.GetKeyUp(KeyCode.Space)) || (Input.GetMouseButtonUp(0)) 
+					|| (Input.GetKeyUp(KeyCode.E))))
+			{
+				anim.SetInteger ("State", 0);
+			}
+		}
+
+		if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A)
+			|| Input.GetKey(KeyCode.W) || (Input.GetKey(KeyCode.LeftShift)
+				|| (Input.GetKey(KeyCode.Space)) || (Input.GetMouseButton(0)) 
+				|| (Input.GetKey(KeyCode.E))))
+		{
+			swapCooldown = true;
+		}
+		else
+		{
+			swapCooldown = false;
+		}
+
 	}
+
+		#endregion
+
 
 	void OnTriggerEnter(Collider col)
 	{
@@ -159,14 +258,6 @@ public class ArcherPlayer : MonoBehaviour {
 		yield return new WaitForSeconds (0.2f);
 		jumping = true;
 	}
-
-	IEnumerator Rol()
-	{
-		yield return new WaitForSeconds (0.8f);
-		mainCollider.height = 220.7062f;
-		isRolling = false;
-	}
-
 
 	IEnumerator Restart()
 	{
